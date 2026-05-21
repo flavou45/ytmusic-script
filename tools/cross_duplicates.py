@@ -9,6 +9,7 @@ from common.utils import chunked, confirm_or_exit, iter_selected_playlists, trac
 
 
 DEFAULT_PLAYLIST_FILE = JSON_DIR / "playlist_cross_duplicate.json"
+LIKED_MUSIC_TITLE = "Liked Music"
 
 
 def load_playlist_selectors(path):
@@ -73,7 +74,9 @@ def export_duplicates_csv(path, duplicates, labels_by_key):
 def clean_from_csv(yt, args, duplicates, labels_by_key):
     wanted_playlists_by_title = load_cleanup_csv(args.import_csv)
     removals_by_playlist = defaultdict(list)
+    unlike_tracks = []
     missing_titles = set(wanted_playlists_by_title)
+    skipped = 0
 
     for key, entries in duplicates.items():
         title = labels_by_key[key]
@@ -85,11 +88,23 @@ def clean_from_csv(yt, args, duplicates, labels_by_key):
         for entry in entries:
             if entry["playlist_title"] not in wanted_playlists:
                 track = entry["track"]
-                if track.get("videoId") and track.get("setVideoId"):
+                if entry["playlist_title"] == LIKED_MUSIC_TITLE:
+                    if track.get("videoId"):
+                        unlike_tracks.append(track)
+                    else:
+                        skipped += 1
+                elif track.get("videoId") and track.get("setVideoId"):
                     removals_by_playlist[entry["playlist_id"]].append(track)
+                else:
+                    skipped += 1
 
     removal_count = sum(len(tracks) for tracks in removals_by_playlist.values())
-    print(f"\nNettoyage CSV : {removal_count} suppression(s) prévue(s).")
+    action_count = removal_count + len(unlike_tracks)
+    print(f"\nNettoyage CSV : {action_count} action(s) prévue(s).")
+    if unlike_tracks:
+        print(f"{len(unlike_tracks)} retrait(s) de J'aime prévu(s) dans {LIKED_MUSIC_TITLE}.")
+    if skipped:
+        print(f"{skipped} entrée(s) ignorée(s), car identifiant requis manquant.")
     if missing_titles:
         print(f"{len(missing_titles)} titre(s) du CSV introuvable(s) dans les doublons actuels.")
 
@@ -98,14 +113,22 @@ def clean_from_csv(yt, args, duplicates, labels_by_key):
         for track in tracks:
             print(f"  - {track_label(track)}")
 
+    if unlike_tracks:
+        print(f"\n{LIKED_MUSIC_TITLE} : {len(unlike_tracks)} retrait(s) de J'aime")
+        for track in unlike_tracks:
+            print(f"  - {track_label(track)}")
+
     if not args.apply:
-        print("\nDry-run : ajoute --apply pour supprimer les titres des playlists non listées dans le CSV.")
+        print("\nDry-run : ajoute --apply pour nettoyer les titres non listés dans le CSV.")
         return
 
-    confirm_or_exit(args, f"{removal_count} titre(s) vont être retirés des playlists non listées dans {args.import_csv}.")
+    confirm_or_exit(args, f"{action_count} action(s) vont être appliquée(s) depuis {args.import_csv}.")
     for playlist_id, tracks in removals_by_playlist.items():
         for batch in chunked(tracks, args.batch_size):
             yt.remove_playlist_items(playlist_id, batch)
+
+    for track in unlike_tracks:
+        yt.rate_song(track["videoId"], "INDIFFERENT")
 
     print("\nNettoyage terminé.")
 

@@ -168,6 +168,8 @@ L'import est en dry-run par défaut. Pour supprimer réellement le morceau des p
 .\.venv\Scripts\python.exe .\ytmusic_manager.py cross-duplicates --import-csv .\exports\cross_duplicates.csv --apply
 ```
 
+Si la playlist à nettoyer est `Liked Music`, la commande ne supprime pas le morceau de la playlist : elle retire le J'aime avec YouTube Music.
+
 Cette commande respecte `json/config.json` par défaut. `--ignore` permet d'ignorer des playlists uniquement pour cet appel, sans modifier la config.
 
 ### Synchroniser playlists vers bibliothèque

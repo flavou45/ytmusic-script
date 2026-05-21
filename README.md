@@ -275,7 +275,7 @@ Pour remplacer les morceaux manquants quand c'est possible, ajoute `--replace`. 
 .\.venv\Scripts\python.exe .\ytmusic_manager.py stats --top 20
 ```
 
-Affiche le nombre de playlists, titres, doublons globaux, durée cumulée, artistes et albums les plus présents.
+Affiche le nombre de playlists, titres en playlists, titres en bibliothèque, titres uniquement en bibliothèque, doublons globaux, durée cumulée, artistes et albums les plus présents.
 
 ### Titres de bibliothèque hors playlists
 
@@ -308,7 +308,7 @@ Pour renommer réellement :
 .\.venv\Scripts\python.exe .\ytmusic_manager.py audit --details
 ```
 
-Rapport global : nombre de playlists, titres, doublons, morceaux manquants, ignore list et backups récents.
+Rapport global : nombre de playlists, titres en playlists, titres en bibliothèque, titres uniquement en bibliothèque, doublons, morceaux manquants, ignore list et backups récents.
 
 ### Gérer la config
 

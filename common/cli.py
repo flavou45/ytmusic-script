@@ -124,6 +124,7 @@ def build_parser():
 
     stats_parser = subparsers.add_parser("stats", help="Afficher des statistiques musicales.")
     add_common_scan_args(stats_parser)
+    stats_parser.add_argument("--library-limit", type=int, default=LIBRARY_LIMIT)
     stats_parser.add_argument("--top", type=int, default=10)
     stats_parser.set_defaults(func=command("stats", "cmd_stats"))
 
@@ -184,6 +185,7 @@ def build_parser():
 
     audit_parser = subparsers.add_parser("audit", help="Rapport global : doublons, manquants, ignore list.")
     add_common_scan_args(audit_parser)
+    audit_parser.add_argument("--library-limit", type=int, default=LIBRARY_LIMIT)
     audit_parser.add_argument("--details", action="store_true")
     audit_parser.add_argument("--limit", type=int, default=50)
     audit_parser.set_defaults(func=command("audit", "cmd_audit"))

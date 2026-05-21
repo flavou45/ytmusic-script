@@ -14,6 +14,7 @@ def cmd_audit(args):
     missing = []
     duplicate_rows = []
     global_counter = Counter()
+    playlist_video_ids = set()
 
     for playlist, details in playlists:
         seen = set()
@@ -21,17 +22,27 @@ def cmd_audit(args):
             total_tracks += 1
             key = track_key(track)
             global_counter[key] += 1
+            if track.get("videoId"):
+                playlist_video_ids.add(track["videoId"])
             if key in seen:
                 duplicate_rows.append((playlist["title"], track))
             seen.add(key)
             if not track.get("videoId") or track.get("isAvailable") is False:
                 missing.append((playlist["title"], track))
 
+    library_songs = yt.get_library_songs(limit=args.library_limit)
+    library_only_tracks = [
+        song
+        for song in library_songs
+        if song.get("videoId") and song.get("videoId") not in playlist_video_ids
+    ]
     global_duplicates = sum(count - 1 for count in global_counter.values() if count > 1)
 
     print("Audit YouTube Music")
     print(f"Playlists analysées : {len(playlists)}")
-    print(f"Titres analysés : {total_tracks}")
+    print(f"Titres analysés en playlists : {total_tracks}")
+    print(f"Titres en bibliothèque : {len(library_songs)}")
+    print(f"Titres uniquement en bibliothèque : {len(library_only_tracks)}")
     print(f"Doublons dans une même playlist : {len(duplicate_rows)}")
     print(f"Doublons globaux entre playlists : {global_duplicates}")
     print(f"Morceaux manquants ou indisponibles : {len(missing)}")
@@ -57,3 +68,7 @@ def cmd_audit(args):
         print("\nMorceaux manquants :")
         for playlist_title, track in missing[:args.limit]:
             print(f"  - {playlist_title} : {track_label(track)}")
+
+        print("\nTitres uniquement en bibliothèque :")
+        for track in library_only_tracks[:args.limit]:
+            print(f"  - {track_label(track)}")

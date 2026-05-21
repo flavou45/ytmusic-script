@@ -18,12 +18,21 @@ def cmd_stats(args):
         all_tracks.extend(tracks)
         playlist_sizes.append((playlist["title"], len(tracks)))
 
-    video_ids = [track.get("videoId") for track in all_tracks if track.get("videoId")]
+    playlist_video_ids = {track.get("videoId") for track in all_tracks if track.get("videoId")}
+    library_songs = yt.get_library_songs(limit=args.library_limit)
+    library_only_tracks = [
+        song
+        for song in library_songs
+        if song.get("videoId") and song.get("videoId") not in playlist_video_ids
+    ]
+    all_tracks_with_library = all_tracks + library_only_tracks
+
+    video_ids = [track.get("videoId") for track in all_tracks_with_library if track.get("videoId")]
     artists = Counter()
     albums = Counter()
     durations = 0
 
-    for track in all_tracks:
+    for track in all_tracks_with_library:
         for artist in track.get("artists") or []:
             if artist.get("name"):
                 artists[artist["name"]] += 1
@@ -36,7 +45,10 @@ def cmd_stats(args):
     hours = durations / 3600 if durations else 0
 
     print(f"Playlists analysées : {len(playlists)}")
-    print(f"Titres au total : {len(all_tracks)}")
+    print(f"Titres en playlists : {len(all_tracks)}")
+    print(f"Titres en bibliothèque : {len(library_songs)}")
+    print(f"Titres uniquement en bibliothèque : {len(library_only_tracks)}")
+    print(f"Titres au total : {len(all_tracks_with_library)}")
     print(f"Titres uniques : {len(set(video_ids))}")
     print(f"Doublons globaux : {duplicate_count}")
     if durations:

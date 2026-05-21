@@ -6,16 +6,35 @@ Les commandes qui modifient YouTube Music sont en dry-run par défaut. Ajoute `-
 
 ## Installation
 
-Utilise le Python du venv existant :
+Ouvre PowerShell, va dans le dossier du projet, puis active l'environnement virtuel :
 
 ```powershell
-.\.venv\Scripts\python.exe .\ytmusic_manager.py --help
+cd D:\Dev\ytmusic-script
+.\.venv\Scripts\Activate.ps1
 ```
 
-Si tu veux utiliser `python ytmusic_manager.py ...` avec ton Python global, installe d'abord les dépendances :
+Installe ensuite les dépendances dans le venv :
 
 ```powershell
 python -m pip install -r requirements.txt
+```
+
+Tu peux vérifier que le CLI répond :
+
+```powershell
+python .\ytmusic_manager.py --help
+```
+
+Une fois le venv activé, lance les commandes avec `python` :
+
+```powershell
+python .\ytmusic_manager.py list
+```
+
+Si tu ne veux pas activer le venv, utilise directement le Python du venv :
+
+```powershell
+.\.venv\Scripts\python.exe .\ytmusic_manager.py --help
 ```
 
 ## Configuration

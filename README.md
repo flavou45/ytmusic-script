@@ -110,6 +110,8 @@ Pour supprimer réellement les doublons :
 
 Les titres sans `videoId` ou `setVideoId` sont listés mais pas supprimés.
 
+Si la playlist est `Liked Music`, la commande ne supprime pas le morceau de la playlist : elle retire le J'aime avec YouTube Music.
+
 ### Lister les doublons entre playlists
 
 ```powershell
